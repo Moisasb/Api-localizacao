@@ -61,7 +61,7 @@ export class LocalizacaoService {
             const resposta = await lastValueFrom(
                 this.httpService.get('https://geocodind-api.open-meteo.com/v1/search', {
                     params: {
-                        nome: cidadeCodificada,
+                        name: cidadeCodificada,
                         count: 1,
                         languare: 'pt',
                         countryCode: 'BR'
@@ -94,6 +94,22 @@ export class LocalizacaoService {
             throw new ServiceUnavailableException(
                 'Não foi possível consultar o serviço de localização',
             );
+        }
+    }
+    async buscarCepComCoordenadas(cep: string) {
+        // Primeiro vamos buscar o CEP
+        const endereco = await this.buscarCep(cep);
+        // depois utilizamos a cidade retornada para consultart a latitude e longitude
+        const localizacao = await this.buscarCidade(endereco.cidade)
+        // montamo suma nova resposta
+        return {
+            cep: endereco.cep,
+            logradouro: endereco.logradouro,
+            bairro: endereco.bairro,
+            cidade: endereco.cidade,
+            estado: endereco.estado,
+            latitude: localizacao.latitude,
+            longitude: localizacao.longitude
         }
     }
 }
